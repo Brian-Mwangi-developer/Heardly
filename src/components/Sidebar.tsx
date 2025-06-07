@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { HomeIcon, InboxIcon, Music2Icon, PinIcon } from "lucide-react";
+import { HomeIcon, InboxIcon, PinIcon, Presentation } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -33,9 +33,6 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
         };
     }, []);
 
-    const handleSignOut = () => {
-        setShowAccountMenu(false);
-    };
 
     return (
         <div className={`${isExpanded ? "w-64" : "w-18"} flex h-full flex-col border-r border-gray-200 py-3 px-4 transition-all duration-300`}
@@ -60,7 +57,7 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
             </div>
             {/* Navigation */}
             <nav className="mt-8 flex flex-1 flex-col">
-                <SectionHeader isExpanded={isExpanded}>Playground</SectionHeader>
+                <SectionHeader isExpanded={isExpanded}>Dashboard</SectionHeader>
                 <SidebarButton
                     icon={<HomeIcon />}
                     isExpanded={isExpanded}
@@ -78,12 +75,12 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
                     Mail
                 </SidebarButton>
                 <SidebarButton
-                    icon={<Music2Icon />}
+                    icon={<Presentation />}
                     isExpanded={isExpanded}
-                    isActive={pathname.includes("/app/sound-effects")}
-                    href="/mail"
+                    isActive={pathname.includes("webinars")}
+                    href="/webinars"
                 >
-                    Resolve
+                    Webinars
                 </SidebarButton>
             </nav>
             {/* Bottom Section */}
