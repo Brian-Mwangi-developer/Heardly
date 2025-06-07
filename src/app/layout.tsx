@@ -6,6 +6,7 @@ import { type Metadata } from "next";
 import { ThemeProvider } from "@/Providers/Theme-Provider";
 import { TRPCReactProvider } from "@/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Heardly",
@@ -28,7 +29,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <TRPCReactProvider>{children}</TRPCReactProvider>
+            <TRPCReactProvider>
+              {children}
+              <Toaster richColors />
+            </TRPCReactProvider>
           </ThemeProvider>
         </body>
       </html>
