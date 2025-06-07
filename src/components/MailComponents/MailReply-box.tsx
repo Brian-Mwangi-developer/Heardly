@@ -68,6 +68,7 @@ const Component = ({ replyDetails }: { replyDetails: RouterOutputs['account']['g
             ccValues={ccValues}
             setCcValues={setCcValues}
             subject={subject}
+            defaultToolbarExpand={true}
             setSubject={setSubject}
             to={replyDetails.to.map(to => to.address)}
             handleSend={handleSend}
