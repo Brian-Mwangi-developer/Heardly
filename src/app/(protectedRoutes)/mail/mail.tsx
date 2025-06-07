@@ -3,7 +3,8 @@
 import { AccountSwitcher } from "@/components/MailComponents/account-switcher"
 import { MailSearchBar } from "@/components/MailComponents/MailSearchBar"
 import { MailSidebar } from "@/components/MailComponents/MailSidebar"
-import {ThreadList} from "@/components/MailComponents/thread-list"
+import ThreadDisplay from "@/components/MailComponents/thread-display"
+import { ThreadList } from "@/components/MailComponents/thread-list"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -61,15 +62,13 @@ const Mail = ({ defaultLayout = [10, 32, 48], navCollapsedSize }: Props) => {
                             <ThreadList />
                         </TabsContent>
                         <TabsContent value="done">
-                            {/* <ThreadList /> */}
-                            Hello Content 2
+                            <ThreadList />
                         </TabsContent>
                     </Tabs>
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={defaultLayout[2]} minSize={30}>
-                    {/* <ThreadDisplay /> */}
-                    Threads Displayed
+                    <ThreadDisplay />
                 </ResizablePanel>
             </ResizablePanelGroup>
         </TooltipProvider>

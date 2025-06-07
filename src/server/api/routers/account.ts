@@ -1,4 +1,6 @@
 import { Account } from "@/lib/account";
+import { Oramaclient } from "@/lib/orama";
+import { emailAddressSchema } from "@/lib/types";
 import { db } from "@/server/db";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
@@ -98,4 +100,94 @@ export const accountRouter = createTRPCRouter({
         })
 
     }),
+    getSuggestions: privateProcedure.input(z.object({
+        accountId: z.string()
+    })).query(async ({ ctx, input }) => {
+        const account = await authoriseAccountAccess(input.accountId, ctx.auth.userId)
+        return await ctx.db.emailAddress.findMany({
+            where: {
+                accountId: account.id
+            },
+            select: {
+                address: true,
+                name: true
+            }
+        })
+    }),
+    getReplyDetails: privateProcedure.input(z.object({
+        accountId: z.string(),
+        threadId: z.string()
+    })).query(async ({ ctx, input }) => {
+        const account = await authoriseAccountAccess(input.accountId, ctx.auth.userId)
+        const thread = await ctx.db.thread.findFirst({
+            where: {
+                id: input.threadId,
+            },
+            include: {
+                emails: {
+                    orderBy: {
+                        sentAt: 'asc'
+                    },
+                    select: {
+                        from: true,
+                        to: true,
+                        cc: true,
+                        sentAt: true,
+                        subject: true,
+                        internetMessageId: true
+                    }
+                }
+            }
+        }
+        )
+        if (!thread || thread.emails.length === 0) throw new Error('Thread not found')
+        const lastExternalEmail = thread.emails.reverse().find(email => email.from.address !== account.emailAddress)
+        if (!lastExternalEmail) throw new Error('No external email found')
+
+        return {
+            subject: lastExternalEmail.subject,
+            to: [lastExternalEmail.from, ...lastExternalEmail.to.filter(to => to.address !== account.emailAddress)],
+            cc: lastExternalEmail.cc.filter(cc => cc.address !== account.emailAddress),
+            from: { name: account.name, address: account.emailAddress },
+            id: lastExternalEmail.internetMessageId
+        }
+    }),
+    sendEmail: privateProcedure.input(
+        z.object({
+            accountId: z.string(),
+            body: z.string(),
+            subject: z.string(),
+            from: emailAddressSchema,
+            to: z.array(emailAddressSchema),
+            cc: z.array(emailAddressSchema).optional(),
+            bcc: z.array(emailAddressSchema).optional(),
+            replyTo: emailAddressSchema,
+            inReplyTo: z.string().optional(),
+            threadId: z.string().optional(),
+        })
+    ).mutation(async ({ ctx, input }) => {
+        const account = await authoriseAccountAccess(input.accountId, ctx.auth.userId)
+        const acc = new Account(account.accessToken)
+        await acc.sendEmail({
+            from: input.from,
+            subject: input.subject,
+            body: input.body,
+            inReplyTo: input.inReplyTo,
+            threadId: input.threadId,
+            to: input.to,
+            cc: input.cc,
+            bcc: input.bcc,
+            replyTo: input.replyTo
+        })
+    }),
+    searchEmails: privateProcedure.input(z.object({
+        accountId: z.string(),
+        query: z.string()
+    })).mutation(async ({ ctx, input }) => {
+        const account = await authoriseAccountAccess(input.accountId, ctx.auth.userId)
+        const orama = new Oramaclient(account.id)
+        await orama.initialize()
+        const results = await orama.search({ term: input.query })
+        return results
+    })
 })
