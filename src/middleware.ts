@@ -7,7 +7,8 @@ const isPublicRoute = createRouteMatcher([
     '/api/clerk/webhook(.*)',
     "/api/initial-sync(.*)",
     '/api/aurinko/callback(.*)',
-    '/live-webinar(.*)'
+    '/live-webinar(.*)',
+    '/(api|trpc)(.*)'
 ])
 
 export default clerkMiddleware(async (auth, request) => {

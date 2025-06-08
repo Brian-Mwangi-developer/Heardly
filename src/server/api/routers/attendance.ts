@@ -1,9 +1,10 @@
-import { createTRPCRouter, privateProcedure } from "../trpc";
 import { z } from "zod";
+import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc";
 
+import { changeAttendanceType } from "@/actions/attendance";
 import type { AttendanceData } from "@/lib/types";
-import { AttendedTypeEnum, CtaTypeEnum } from "@prisma/client";
 import { db } from "@/server/db";
+import { AttendedTypeEnum, CallStatusEnum, CtaTypeEnum } from "@prisma/client";
 
 export const attendanceRouter = createTRPCRouter({
     getWebinarAttendance: privateProcedure
@@ -128,4 +129,168 @@ export const attendanceRouter = createTRPCRouter({
                 };
             }
         }),
+
+    registerAttendee: publicProcedure.input(
+        z.object({
+            webinarId: z.string(),
+            email: z.string(),
+            name: z.string(),
+        })
+    ).mutation(async ({ input }) => {
+        const { webinarId, email, name } = input;
+        try {
+
+            if (!webinarId || !email || !name) {
+                return { success: false, status: 400, message: "Invalid input" }
+            }
+            console.log("Registering attendee trpc:", { webinarId, email, name });
+            const webinar = await db.webinar.findUnique({
+                where: { id: webinarId },
+            })
+
+            if (!webinar) {
+                return { success: false, status: 404, message: "Webinar not found" }
+            }
+            let attendee = await db.attendee.findUnique({
+                where: { email: email }
+            })
+            if (!attendee) {
+                attendee = await db.attendee.create({
+                    data: { email, name }
+                })
+            }
+            // check for existing attendance
+            const existingAttendance = await db.attendance.findFirst({
+                where: {
+                    attendeeId: attendee.id,
+                    webinarId: webinarId
+                },
+                include: {
+                    user: true
+                }
+            })
+            if (existingAttendance) {
+                return {
+                    success: true,
+                    status: 200,
+                    message: "You have already registered for this webinar",
+                    data: existingAttendance
+                }
+            }
+            // Create attendance Record
+            const attendance = await db.attendance.create({
+                data: {
+                    attendedType: AttendedTypeEnum.REGISTERED,
+                    attendeeId: attendee.id,
+                    webinarId: webinarId,
+                },
+                include: {
+                    user: true
+                }
+            })
+            return {
+                success: true,
+                status: 201,
+                message: "Successfully registered for the webinar",
+                createdAt: attendance.createdAt,
+                updatedAt: attendance.updatedAt,
+                data: attendance
+            }
+        } catch (error) {
+            console.error("Error registering attendee:", error);
+            return {
+                success: false,
+                status: 500,
+                message: "Failed to register for the webinar",
+                error
+            }
+        }
+    }),
+    changeCallStatus: publicProcedure.input(z.object({
+        attendeeId: z.string(),
+        callStatus: z.nativeEnum(CallStatusEnum)
+    })
+    ).mutation(async ({ input }) => {
+        const { attendeeId, callStatus } = input;
+        try {
+            const attendee = await db.attendee.update({
+                where: { id: attendeeId },
+                data: {
+                    callStatus: callStatus
+                }
+            })
+            return {
+                success: true,
+                status: 200,
+                message: "Call status updated successfully",
+                data: attendee
+            }
+        } catch (error) {
+            console.error("Error changing call status:", error);
+            return {
+                success: false,
+                status: 500,
+                message: "Failed to update call status",
+                error
+            }
+        }
+    }),
+    changeAttendeeType: publicProcedure.input(z.object({
+        attendeeId: z.string(),
+        attendedType: z.nativeEnum(AttendedTypeEnum),
+        webinarId: z.string()
+    })).mutation(async ({ input }) => {
+        try {
+            const attendance = await changeAttendanceType(input.attendeeId, input.webinarId, input.attendedType);
+            return {
+                success: true,
+                status: 200,
+                message: "Attendance type updated successfully",
+                data: attendance
+            }
+        } catch (error) {
+            console.error("Error changing attendance type:", error);
+            return {
+                success: false,
+                status: 500,
+                message: "Failed to update attendance type",
+                error
+            }
+        }
+    }),
+    getAttendeeById: publicProcedure.input(z.object({
+        id: z.string(),
+        webinarId: z.string()
+    })).query(async ({ input }) => {
+        const { id, webinarId } = input;
+        try {
+            const attendee = await db.attendee.findUnique({
+                where: {
+                    id
+                }
+            })
+            const attendance = await db.attendance.findFirst({
+                where: {
+                    attendeeId: id,
+                    webinarId: webinarId
+                }
+            })
+            if (!attendee || !attendance) {
+                return { success: false, status: 404, message: "Attendee not found" }
+            }
+            return {
+                success: true,
+                status: 200,
+                data: attendee,
+                message: 'Get attendee details successfully'
+            }
+        } catch (error) {
+            console.error("Error fetching attendee by ID:", error);
+            return {
+                success: false,
+                status: 500,
+                message: "Failed to fetch attendee details",
+            }
+        }
+    })
 });

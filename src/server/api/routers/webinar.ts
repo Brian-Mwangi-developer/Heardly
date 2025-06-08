@@ -2,7 +2,7 @@ import { onAuthenticateUser } from "@/actions/auth";
 import { db } from "@/server/db";
 import { CtaTypeEnum, WebinarStatusEnum } from "@prisma/client";
 import { z } from "zod";
-import { createTRPCRouter, privateProcedure } from "../trpc";
+import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc";
 
 
 
@@ -142,4 +142,61 @@ export const webinarRouter = createTRPCRouter({
                 return { status: 500, message: "Internal server error" };
             }
         }),
+    getWebinarById: publicProcedure.input(z.object({
+        webinarId: z.string()
+    })
+    ).query(async ({ input }) => {
+        try {
+            const webinar = await db.webinar.findUnique({
+                where: { id: input.webinarId },
+                include: {
+                    presenter: {
+                        select: {
+                            id: true,
+                            profileImage: true,
+                            name: true,
+                            email: true,
+                            clerkId: true,
+                            createdAt: true,
+                            updatedAt: true,
+                            subscription: true,
+                            stripeCustomerId: true,
+                            stripeConnectId: true,
+                        }
+                    }
+                }
+            })
+            return webinar;
+        } catch (error) {
+            console.error("Error fetching webinar:", error);
+            throw new Error("Failed to fetch webinar")
+        }
+    }),
+    changeWebinarStatus: publicProcedure.input(z.object({
+        webinarId: z.string(),
+        status: z.nativeEnum(WebinarStatusEnum)
+    })
+    ).mutation(async ({ input }) => {
+        try {
+            const webinar = await db.webinar.update({
+                where: { id: input.webinarId },
+                data: {
+                    webinarStatus: input.status
+                }
+            })
+            return {
+                status: 200,
+                sucess: true,
+                message: "Webinar status updated successfully",
+                data: webinar
+            }
+        } catch (error) {
+            console.error("Error updating webinar status:", error);
+            return {
+                status: 500,
+                sucess: false,
+                message: "Unable to update webinar status",
+            }
+        }
+    }),
 })
