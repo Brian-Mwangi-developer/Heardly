@@ -4,6 +4,7 @@ import { accountRouter } from "./routers/account";
 import { attendanceRouter } from "./routers/attendance";
 import { stripeRouter } from "./routers/stripe";
 import { webinarRouter } from "./routers/webinar";
+import { streamIoRouter } from "./routers/streamIo";
 
 /**
  * This is the primary router for your server.
@@ -15,7 +16,8 @@ export const appRouter = createTRPCRouter({
   account: accountRouter,
   webinar: webinarRouter,
   stripe: stripeRouter,
-  attendance: attendanceRouter
+  attendance: attendanceRouter,
+  streamIo:streamIoRouter
 });
 
 // export type definition of API

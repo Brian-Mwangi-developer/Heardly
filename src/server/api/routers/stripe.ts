@@ -1,3 +1,4 @@
+import { changeAttendanceType } from "@/actions/attendance";
 import { onAuthenticateUser } from "@/actions/auth";
 import { subscriptionPriceId } from "@/lib/data";
 import { stripe } from "@/lib/stripe";
@@ -11,7 +12,7 @@ export const stripeRouter = createTRPCRouter({
         email: z.string(),
         userId: z.string(),
     })
-    ).mutation(async ({ input }) => { // Changed from .query to .mutation
+    ).mutation(async ({ input }) => { 
         try {
             let customer: Stripe.Customer
             const existingCustomer = await stripe.customers.list({ email: input.email })
@@ -90,5 +91,52 @@ export const stripeRouter = createTRPCRouter({
                 success: false
             }
         }
+    }),
+    createCheckoutLink: privateProcedure.input(z.object({
+        priceId: z.string(),
+        stripeId: z.string(),
+        attendeeId: z.string(),
+        webinarId: z.string(),
+        bookCall: z.boolean().default(false),
     })
+    ).mutation(async ({ input }) => {
+        const { priceId, stripeId, attendeeId, webinarId, bookCall } = input;
+        try {
+            const session = await stripe.checkout.sessions.create(
+                {
+                    line_items: [
+                        {
+                            price: priceId,
+                            quantity: 1,
+                        },
+                    ],
+                    mode: 'subscription',
+                    success_url: `${process.env.NEXT_PUBLIC_URL}/`,
+                    cancel_url: `${process.env.NEXT_PUBLIC_URL}/`,
+                    metadata: {
+                        attendeeId: attendeeId,
+                        webinarId: webinarId
+                    },
+                },
+                {
+                    stripeAccount: stripeId
+                }
+            )
+            if (bookCall) {
+                await changeAttendanceType(attendeeId, webinarId, 'ADDED_TO_CART')
+            }
+            return {
+                sessionUrl: session.url,
+                status: 200,
+                success: true
+            }
+        } catch (error) {
+            console.log("Error creating checkout link:", error);
+            return {
+                error: 'Error creating checkout link',
+                status: 500,
+                success: false
+            }
+        }
+    }),
 })
