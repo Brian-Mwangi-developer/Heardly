@@ -27,7 +27,7 @@ export const CreateWebinarButton = ({ stripeProducts, assistants }: Props) => {
         setIsComplete(true)
 
         setWebinarLink(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/live-webinar/${webinarId}`
+            `${process.env.NEXT_PUBLIC_URL}/live-webinar/${webinarId}`
         )
     }
 
@@ -72,13 +72,13 @@ export const CreateWebinarButton = ({ stripeProducts, assistants }: Props) => {
             <DialogTrigger asChild>
                 <button
                     className="rounded-xl flex gap-2 items-center hover:cursor-pointer px-4 py-2 border border-border
-                    bg-primary/10 backdrop-blur-sm text-sm font-normal text-primary hover:bg-primary-20"
+                    bg-gradient-to-r from-pink-100 to-purple-100 backdrop-blur-sm text-sm font-normal text-primary hover:bg-primary-20"
                     onClick={() => setModalOpen(true)}>
                     <PlusIcon />
                     Create Webinar
                 </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[900px] p-0 bg-transparent border-none">
+            <DialogContent className="sm:max-w-[900px] p-0 bg-white border-none">
                 {isComplete ? (
                     <div className="bg-muted text-primary rounded-lg overflow-hidden">
                         <DialogTitle className="sr-only">Webinar Created</DialogTitle>
