@@ -3,7 +3,7 @@
 import { onAuthenticateUser } from '@/actions/auth';
 import Header from '@/components/WebinarComponents/webinar-header';
 import { api } from '@/trpc/server';
-// import { getAllProductsFromStripe } from '@/actions/stripe'
+
 // import { getAllAssistants } from '@/actions/vapi'
 // import { Header } from '@/components/ReusableComponents/LayoutComponents/Header'
 // import { Sidebar } from '@/components/ReusableComponents/LayoutComponents/Sidebar'

@@ -70,7 +70,7 @@ export const SuccessStep = ({ webinarLink, onCreateNew }: Props) => {
                     <Button
                         onClick={onCreateNew}
                         variant="outline"
-                        className="border-gray-700 text-white hover:bg-gray-800"
+                        className="border-gray-700 text-gray-700 hover:bg-gray-800 hover:text-white"
                     >
                         <PlusIcon className="mr-2 h-4 w-4" />
                         Create another Webinar

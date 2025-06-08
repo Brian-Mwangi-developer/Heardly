@@ -27,6 +27,8 @@ export const MultiStepForm = ({ steps, onComplete }: Props) => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [validationErrors, setValidationErrors] = useState<string | null>(null);
     const router = useRouter();
+    const createWebinar = api.webinar.createWebinar.useMutation();
+
 
     const handleBack = () => {
         if (isFirstStep) {
@@ -49,7 +51,6 @@ export const MultiStepForm = ({ steps, onComplete }: Props) => {
         if (isLastStep) {
             try {
                 setIsSubmitting(true)
-                const createWebinar = api.webinar.createWebinar.useMutation()
                 const result = await createWebinar.mutateAsync(formData)
                 if (result.status === 200 && result.webinarId) {
                     toast.success('Your webinar has been created successfully!')
@@ -80,7 +81,7 @@ export const MultiStepForm = ({ steps, onComplete }: Props) => {
     const isLastStep = currentStepIndex === steps.length - 1
     return (
         <div
-            className='flex flex-col justify-center items-center bg-[#27272A]/20 border border-border rounded-3xl
+            className='flex flex-col justify-center items-center border border-border rounded-3xl
         overflow-hidden max-w-6xl mx-auto backdrop-blur-[106px]'>
             <div className='flex items-center justify-start'>
                 <div className='w-full md:w-1/3 p-6 mx-2'>
@@ -197,7 +198,7 @@ export const MultiStepForm = ({ steps, onComplete }: Props) => {
                     variant='outline'
                     onClick={handleBack}
                     disabled={isSubmitting}
-                    className={cn('border-gray-700 text-white hover:bg-gray-800',
+                    className={cn('border-gray-700 text-gray-700 hover:bg-gray-800 hover:text-white',
                         isFirstStep && 'opacity-50 cursor-not-allowed'
                     )}
                 >

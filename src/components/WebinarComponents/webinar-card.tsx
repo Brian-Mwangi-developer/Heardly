@@ -1,6 +1,6 @@
 import type { Webinar } from '@prisma/client'
 import { format } from 'date-fns'
-import { Calendar, Columns3 } from 'lucide-react'
+import { Calendar, GitGraph } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -10,7 +10,7 @@ type Props = {
 
 export const WebinarCard = ({ webinar }: Props) => {
     return (
-        <div className='flex gap-3 flex-col items-start w-full'>
+        <div className='flex gap-3 flex-col items-start w-full border border-gray-200 rounded-md p-4'>
             <Link href={`live-webinar/${webinar?.id}`}
                 className='w-full max-w-[400px]'
             >
@@ -41,7 +41,7 @@ export const WebinarCard = ({ webinar }: Props) => {
                 </Link>
                 <Link href={`/webinars/${webinar?.id}/pipeline`}
                     className='flex px-4 py-2 rounded-md border-[0.5px] border-border bg-secondary'>
-                    <Columns3 className=" w-4 h-4 text-accent-primary" />
+                    <GitGraph className=" w-4 h-4 text-accent-primary" />
                 </Link>
             </div>
         </div>
