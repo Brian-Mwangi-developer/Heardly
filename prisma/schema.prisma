@@ -93,13 +93,10 @@ model User {
 model Conversation{
     id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     vcon         Json?
+    threadId    String
+    thread       Thread                @relation(fields: [threadId], references: [id])
     createdAt    DateTime     @default(now())
     updatedAt    DateTime     @updatedAt
-    userId       String
-    userEmail    String?
-    attendeeId   String?
-    conversationType ConversationTypeEnum
-    attendeeEmail String?
 }
 model Account {
   id     String @id @default(cuid())
@@ -128,7 +125,7 @@ model Thread {
   inboxStatus Boolean @default(true)
   draftStatus Boolean @default(false)
   sentStatus  Boolean @default(false)
-
+  conversation Conversation[]
   emails Email[]
 
   @@index([accountId])

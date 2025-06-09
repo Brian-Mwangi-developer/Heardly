@@ -4,9 +4,7 @@ import { onAuthenticateUser } from '@/actions/auth';
 import Header from '@/components/WebinarComponents/webinar-header';
 import { api } from '@/trpc/server';
 
-// import { getAllAssistants } from '@/actions/vapi'
-// import { Header } from '@/components/ReusableComponents/LayoutComponents/Header'
-// import { Sidebar } from '@/components/ReusableComponents/LayoutComponents/Sidebar'
+
 import { redirect } from 'next/navigation';
 import React from 'react';
 
@@ -16,8 +14,9 @@ type Props = {
 
 const Layout = async ({ children }: Props) => {
     const userExist = await onAuthenticateUser();
-    // const assistantsResult = await getAllAssistants()
-    // const assistants = assistantsResult.data || [];
+    const assistantsResult = await api.vapi.getAllAssistants()
+    const assistants = assistantsResult.data || []
+
 
 
 
@@ -31,7 +30,7 @@ const Layout = async ({ children }: Props) => {
                     <Header
                         user={userExist.user}
                         stripeProducts={stripeProducts.products || []}
-                        assistants={[]}
+                        assistants={assistants}
                     />
                 </div>
                 <div className='flex-1 py-10'>

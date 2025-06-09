@@ -1,9 +1,10 @@
-import  type{ EmailAddress, EmailAttachment, EmailMessage } from "@/lib/types";
-import pLimit from "p-limit";
-import { db } from "@/server/db";
+import { createVcon } from "@/actions/vcon";
+import { getEmbeddings } from "@/lib/embedding";
 import { Oramaclient } from "@/lib/orama";
 import { turndown } from "@/lib/turndown";
-import { getEmbeddings } from "@/lib/embedding";
+import type { EmailAddress, EmailAttachment, EmailMessage } from "@/lib/types";
+import { db } from "@/server/db";
+import pLimit from "p-limit";
 
 export async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string) {
     console.log("Attempting to sync emails to database", emails.length)
@@ -14,6 +15,7 @@ export async function syncEmailsToDatabase(emails: EmailMessage[], accountId: st
         // Promise.all(emails.map((email,index) =>upsertEmail(email,accountId,index)))
         for (const email of emails) {
             const body = turndown.turndown(email.body ?? email.bodySnippet ?? "")
+            console.log("Body snippet", body)
             const embeddings = await getEmbeddings(body)
             await orama.insert({
                 subject: email.subject,
@@ -24,7 +26,23 @@ export async function syncEmailsToDatabase(emails: EmailMessage[], accountId: st
                 sentAt: email.sentAt.toLocaleString(),
                 embeddings
             })
+            //Add Logic to Utilize VCons
             await upsertEmail(email, accountId, 0)
+        }
+        if (emails.length > 0) {
+            const emailsByThread = emails.reduce((acc, email) => {
+                acc[email.threadId] = acc[email.threadId] || [];
+                (acc[email.threadId] ?? (acc[email.threadId] = [])).push(email);
+                return acc;
+            }, {} as Record<string, EmailMessage[]>);
+
+            for (const threadId in emailsByThread) {
+                const threadEmails = emailsByThread[threadId];
+                if (threadEmails) {
+                    console.log("Email Before Vcon", threadEmails[0]?.bodySnippet)
+                    await createVcon(threadId, threadEmails);
+                }
+            }
         }
 
     } catch (error) {

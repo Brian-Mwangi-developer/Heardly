@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { useWebinarStore } from "@/store/useWebinarStore"
 import { DialogTitle } from "@radix-ui/react-dialog"
-// import { Assistant } from "@vapi-ai/server-sdk/api"
+import { type Assistant } from "@vapi-ai/server-sdk/api"
 import { PlusIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import Stripe from "stripe"
@@ -13,10 +13,10 @@ import { CTAStep } from "./cta-steps"
 import { MultiStepForm } from "./multi-step-form"
 import { SuccessStep } from "./success-step"
 
+
 type Props = {
     stripeProducts: Stripe.Product[] | []
-    // assistants: Assistant[] | []
-    assistants: any[]
+    assistants: Assistant[] | []
 }
 
 export const CreateWebinarButton = ({ stripeProducts, assistants }: Props) => {

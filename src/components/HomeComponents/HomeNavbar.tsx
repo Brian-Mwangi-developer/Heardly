@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button"
+import { currentUser } from "@clerk/nextjs/server"
 import { Zap } from "lucide-react"
 import Link from "next/link"
 
-export default function Navbar() {
+export default async function Navbar() {
+    const user = await currentUser()
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,13 +36,15 @@ export default function Navbar() {
                         </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <Link href="/sign-in">
+                        {!user && (<Link href="/sign-in">
                             <Button className="cursor-pointer" >
                                 Sign In
                             </Button>
-                        </Link>
-                        <Link href='/sign-up'>
-                            <Button className="cursor-pointer">Get Started</Button>
+                        </Link>)}
+                        <Link href={user ? "/home" : "/sign-up"}>
+                            <Button className="cursor-pointer">
+                                {user ? "Dashboard" : "Sign Up"}
+                            </Button>
                         </Link>
 
                     </div>

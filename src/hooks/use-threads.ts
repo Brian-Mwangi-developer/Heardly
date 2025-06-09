@@ -1,8 +1,7 @@
 "use client";
-import React from 'react'
 import { api } from "@/trpc/react";
+import { atom, useAtom } from 'jotai';
 import { useLocalStorage } from "usehooks-ts";
-import { atom, useAtom } from 'jotai'
 
 
 export const threadIdAtom = atom<string | null>(null)
@@ -18,7 +17,7 @@ const UseThreads = () => {
         tab,
         done
     }, {
-        enabled: !!accountId && !!tab, placeholderData: e => e, refetchInterval: 5000
+        enabled: !!accountId && !!tab, placeholderData: e => e, refetchInterval: 10000
     })
     return {
         threads,
