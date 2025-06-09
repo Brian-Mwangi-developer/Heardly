@@ -143,7 +143,6 @@ export const attendanceRouter = createTRPCRouter({
             if (!webinarId || !email || !name) {
                 return { success: false, status: 400, message: "Invalid input" }
             }
-            console.log("Registering attendee trpc:", { webinarId, email, name });
             const webinar = await db.webinar.findUnique({
                 where: { id: webinarId },
             })

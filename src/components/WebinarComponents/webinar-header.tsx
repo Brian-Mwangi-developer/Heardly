@@ -38,7 +38,7 @@ const Header = ({ user, stripeProducts, assistants }: Props) => {
             <div className="flex gap-6 items-center flex-wrap">
                 {user.subscription ? (
                     <CreateWebinarButton stripeProducts={stripeProducts}
-                        assistants={[]} />
+                        assistants={assistants} />
                 ) : (
                     <StripeElements>
                         <SubscriptionModal user={user} />

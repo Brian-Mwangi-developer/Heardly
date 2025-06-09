@@ -5,14 +5,14 @@ import { stripe } from "@/lib/stripe";
 import { db } from "@/server/db";
 import Stripe from "stripe";
 import z from "zod";
-import { createTRPCRouter, privateProcedure } from "../trpc";
+import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc";
 
 export const stripeRouter = createTRPCRouter({
     onGetStripeClientSecret: privateProcedure.input(z.object({
         email: z.string(),
         userId: z.string(),
     })
-    ).mutation(async ({ input }) => { 
+    ).mutation(async ({ input }) => {
         try {
             let customer: Stripe.Customer
             const existingCustomer = await stripe.customers.list({ email: input.email })
@@ -92,7 +92,7 @@ export const stripeRouter = createTRPCRouter({
             }
         }
     }),
-    createCheckoutLink: privateProcedure.input(z.object({
+    createCheckoutLink: publicProcedure.input(z.object({
         priceId: z.string(),
         stripeId: z.string(),
         attendeeId: z.string(),

@@ -2,7 +2,7 @@
 import AutoConnectCall from "@/components/Voice-Agents-Components/AutoConnectCall"
 import { type WebinarWithPresenter } from "@/lib/types"
 import { api } from "@/trpc/server"
-import { CallStatusEnum, WebinarStatusEnum } from "@prisma/client"
+import { CallStatusEnum } from "@prisma/client"
 import { redirect } from "next/navigation"
 
 type Props = {
@@ -29,11 +29,11 @@ const page = async ({ params, searchParams }: Props) => {
     if (!webinar) {
         redirect('/404')
     }
-    if (webinar.webinarStatus === WebinarStatusEnum.WAITING_ROOM ||
-        webinar.webinarStatus === WebinarStatusEnum.SCHEDULED
-    ) {
-        redirect(`/live-webinar/${liveWebinarId}?error=Webinar-not-started`)
-    }
+    // if (webinar.webinarStatus === WebinarStatusEnum.WAITING_ROOM ||
+    //     webinar.webinarStatus === WebinarStatusEnum.SCHEDULED
+    // ) {
+    //     redirect(`/live-webinar/${liveWebinarId}?error=Webinar-not-started`)
+    // }
     if (webinar.ctaType !== 'BOOK_A_CALL' ||
         !webinar.aiAgentId || !webinar.priceId
     ) {
