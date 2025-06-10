@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { HomeIcon, InboxIcon, PinIcon, Presentation } from "lucide-react";
+import { Brain, HomeIcon, InboxIcon, PinIcon, Presentation } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -81,6 +81,14 @@ export default function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
                     href="/webinars"
                 >
                     Webinars
+                </SidebarButton>
+                <SidebarButton
+                    icon={<Brain />}
+                    isExpanded={isExpanded}
+                    isActive={pathname.includes("rules")}
+                    href="/rules"
+                >
+                    AI Rules
                 </SidebarButton>
             </nav>
             {/* Bottom Section */}

@@ -185,7 +185,7 @@
   }
 }
 .editor-input-area .ProseMirror {
-  @apply focus:ring-primary min-h-[200px] rounded-md border border-gray-300 bg-white px-4 py-3 text-base focus:ring-2 focus:outline-none;
+  @apply focus:ring-primary min-h-[100px] rounded-md border border-gray-300 bg-white px-4 py-3 text-base focus:ring-2 focus:outline-none;
   /* Add any other Tailwind or custom styles here */
 }
 .animate-ping {

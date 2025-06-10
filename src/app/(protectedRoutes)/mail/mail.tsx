@@ -1,15 +1,16 @@
 "use client"
 
 import { AccountSwitcher } from "@/components/MailComponents/account-switcher"
+import { EmailAnalysis } from "@/components/MailComponents/email-analysis"
 import { MailSearchBar } from "@/components/MailComponents/MailSearchBar"
 import { MailSidebar } from "@/components/MailComponents/MailSidebar"
 import ThreadDisplay from "@/components/MailComponents/thread-display"
 import { ThreadList } from "@/components/MailComponents/thread-list"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
+import UseThreads from "@/hooks/use-threads"
 import { useState } from "react"
 
 type Props = {
@@ -18,60 +19,44 @@ type Props = {
     defaultCollapsed: boolean
 }
 
-const Mail = ({ defaultLayout = [10, 32, 48], navCollapsedSize }: Props) => {
+const Mail = ({ defaultLayout = [15, 38, 15], navCollapsedSize }: Props) => {
     const [isCollapsed, setIsCollapsed] = useState(false)
+    const { threadId,threads } = UseThreads()
     return (
-        <TooltipProvider delayDuration={0}>
-            <ResizablePanelGroup direction="horizontal" className="items-stretch h-full min-h-screen">
-                <ResizablePanel defaultValue={defaultLayout[0]}
-                    collapsedSize={navCollapsedSize}
-                    collapsible={true}
-                    minSize={10}
-                    maxSize={15}
-                    onCollapse={() => {
-                        setIsCollapsed(true)
-                    }}
-                    onResize={() => { setIsCollapsed(false) }}
-                    className={cn(isCollapsed && 'min-w-[50px] transition-all duration-300 ease-in-out')}
-                >
-                    <div className="flex flex-col h-full flex-1">
-                        <div className={cn("flex h-[52px] items-center justify-between", isCollapsed ? 'h-[52px]' : 'px-2')}>
-                            <AccountSwitcher isCollapsed={false} />
-                        </div>
-                        <Separator />
-                        <MailSidebar isCollapsed={false} />
-                        <div className="flex-1">
-                        </div>
-                        {/* AI Asking If Needed */}
-                    </div>
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
-                    <Tabs defaultValue='inbox'>
-                        <div className="flex items-center px-4 py-2">
-                            <h1 className="text-xl font-bold">Inbox</h1>
-                            <TabsList className="ml-auto">
-                                <TabsTrigger value="inbox" className="text-zinc-600 dark:text-zinc-200">Inbox</TabsTrigger>
-                                <TabsTrigger value="done" className="text-zinc-600 dark:text-zinc-200">Done</TabsTrigger>
-                            </TabsList>
-                        </div>
-                        <Separator />
-                        {/* SearchBar */}
-                        <MailSearchBar />
-                        <TabsContent value="inbox">
-                            <ThreadList />
-                        </TabsContent>
-                        <TabsContent value="done">
-                            <ThreadList />
-                        </TabsContent>
-                    </Tabs>
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={defaultLayout[2]} minSize={30}>
-                    <ThreadDisplay />
-                </ResizablePanel>
-            </ResizablePanelGroup>
-        </TooltipProvider>
+        <>
+            <TooltipProvider delayDuration={0}>
+                <ResizablePanelGroup direction="horizontal" className="items-stretch h-full min-h-screen">
+                    <ResizablePanel defaultSize={defaultLayout[0]} minSize={10}>
+                        <Tabs defaultValue='inbox'>
+                            <div className="">
+                                <div className="flex flex-col justify-center">
+                                    <AccountSwitcher isCollapsed={false} />
+                                </div>
+                                <Separator className="" />
+                                <MailSidebar isCollapsed={false} />
+                            </div>
+                            <Separator />
+                            {/* SearchBar */}
+                            <MailSearchBar />
+                            <TabsContent value="inbox">
+                                <ThreadList />
+                            </TabsContent>
+                            <TabsContent value="done">
+                                <ThreadList />
+                            </TabsContent>
+                        </Tabs>
+                    </ResizablePanel>
+                    <ResizableHandle withHandle />
+                    <ResizablePanel defaultSize={60} minSize={25}>
+                        <ThreadDisplay />
+                    </ResizablePanel>
+                    <ResizableHandle withHandle />
+                    <ResizablePanel defaultSize={25} minSize={15} className="flex flex-col">
+                        {threadId && <EmailAnalysis threadId={threadId} />}
+                    </ResizablePanel>
+                </ResizablePanelGroup>
+            </TooltipProvider>
+        </>
     )
 }
 

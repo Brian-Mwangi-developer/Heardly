@@ -15,7 +15,7 @@ export async function syncEmailsToDatabase(emails: EmailMessage[], accountId: st
         // Promise.all(emails.map((email,index) =>upsertEmail(email,accountId,index)))
         for (const email of emails) {
             const body = turndown.turndown(email.body ?? email.bodySnippet ?? "")
-            console.log("Body snippet", body)
+            // console.log("Body snippet", body)
             const embeddings = await getEmbeddings(body)
             await orama.insert({
                 subject: email.subject,
@@ -39,7 +39,7 @@ export async function syncEmailsToDatabase(emails: EmailMessage[], accountId: st
             for (const threadId in emailsByThread) {
                 const threadEmails = emailsByThread[threadId];
                 if (threadEmails) {
-                    console.log("Email Before Vcon", threadEmails[0]?.bodySnippet)
+                    // console.log("Email Before Vcon", threadEmails[0]?.bodySnippet)
                     await createVcon(threadId, threadEmails);
                 }
             }

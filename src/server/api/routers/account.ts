@@ -16,6 +16,7 @@ export const authoriseAccountAccess = async (accountId: string, userId: string) 
             id: true, emailAddress: true, name: true, accessToken: true
         }
     })
+    // console.log('Authorising Account Access:', accountId, userId);
     if (!account) throw new Error('Account not found')
     return account
 }
@@ -99,6 +100,34 @@ export const accountRouter = createTRPCRouter({
             }
         })
 
+    }),
+    getThreadById: privateProcedure.input(z.object({
+        threadId: z.string()
+    })).query(async ({ input }) => {
+        const thread = await db.thread.findFirst({
+            where: {
+                id: input.threadId
+            },
+            include: {
+                emails: {
+                    orderBy: {
+                        sentAt: 'asc'
+                    },
+                    select: {
+                        from: true,
+                        body: true,
+                        bodySnippet: true,
+                        emailLabel: true,
+                        subject: true,
+                        sysLabels: true,
+                        id: true,
+                        sentAt: true
+                    }
+                }
+            }
+        })
+        if (!thread) throw new Error('Thread not found')
+        return thread
     }),
     getSuggestions: privateProcedure.input(z.object({
         accountId: z.string()
