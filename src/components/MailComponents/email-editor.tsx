@@ -86,12 +86,12 @@ const EmailEditor = ({ toValues, setToValues, ccValues, setCcValues, subject, se
                             placeholder="Add recipient"
                             value={toValues}
                         />
-                        <TagInput
+                        {/* <TagInput
                             label="Cc"
                             onChange={setCcValues}
                             placeholder="Add recipient"
                             value={ccValues}
-                        />
+                        /> */}
                         <Input id="subject" placeholder='Subject' value={subject} onChange={(e) => setSubject(e.target.value)} />
                     </>
                 )}
@@ -109,7 +109,7 @@ const EmailEditor = ({ toValues, setToValues, ccValues, setCcValues, subject, se
                 </div>
             </div>
 
-            <div className="prose w-full px-4 mb-10">
+            <div className="prose w-full px-4 mb-1">
                 <EditorContent editor={editor} value={value} className="editor-input-area" />
             </div>
             <Separator />

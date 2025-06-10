@@ -12,7 +12,7 @@ export async function createVcon(threadId: string, emails: EmailMessage[]): Prom
                 ...email.to.map(to => to.address)
             ]))
         );
-        console.log("Email Body", emails[0]?.bodySnippet)
+        // console.log("Email Body", emails[0]?.bodySnippet)
 
         // Prepare dialogs
         const dialogs = emails
@@ -22,9 +22,9 @@ export async function createVcon(threadId: string, emails: EmailMessage[]): Prom
                 last_modified: new Date().toISOString()
             }));
 
-        console.log("Thread ID:", threadId);
-        console.log("Parties:", parties);
-        console.log("Dialogs:", dialogs);
+        // console.log("Thread ID:", threadId);
+        // console.log("Parties:", parties);
+        // console.log("Dialogs:", dialogs);
 
         // Send the data to the FastAPI endpoint
         const response = await axios.post("http://localhost:8000/vcon/email_thread", {
