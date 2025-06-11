@@ -10,25 +10,41 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { useStreamingAnalysis } from "@/hooks/use-streaming-analysis";
 import useThreads from "@/hooks/use-threads";
 import { format } from "date-fns";
 import { useAtom } from "jotai";
-import { Archive, ArchiveX, Brain, Clock, MoreVertical, Trash2 } from "lucide-react";
+import { Archive, ArchiveX, Clock, MoreVertical, Trash2 } from "lucide-react";
 import { EmailDisplay } from './email-display';
 import { MailReplyBox } from "./MailReply-box";
 import { isSearchingAtom } from "./MailSearchBar";
 import { MailSearchDisplay } from './MailSearchDisplay';
-import { useStreamingAnalysis } from "@/hooks/use-streaming-analysis";
+
+const getBadgeConfig = (category: string | undefined) => {
+    switch (category?.toLowerCase()) {
+        case 'potential':
+            return { bg: 'bg-green-100', text: 'text-green-700', label: 'POTENTIAL' };
+        case 'query':
+            return { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'QUERY' };
+        case 'dead':
+            return { bg: 'bg-red-100', text: 'text-red-700', label: 'LOW PRIORITY' };
+        default:
+            return { bg: 'bg-white', text: 'text-gray-500', label: 'Not Analyzed' };
+    }
+};
 
 const ThreadDisplay = () => {
     const { threadId, threads } = useThreads()
     const thread = threads?.find(t => t.id === threadId)
-    const {startAnalysis} = useStreamingAnalysis()
+    const { startAnalysis, results } = useStreamingAnalysis()
     const [isSearching] = useAtom(isSearchingAtom)
-    const handleAnalyzeClick = async () => {
-        if (!threadId) return;
-        await startAnalysis(threadId);
-    }
+
+    const firstAnalysis = results?.analyses?.[0]?.analysis;
+    const badgeConfig = getBadgeConfig(firstAnalysis?.overallCategory);
+    const confidenceScore =
+        firstAnalysis?.overallCategory && firstAnalysis?.urgencyLevel && firstAnalysis?.confidenceScore
+            ? `${badgeConfig.label} (${firstAnalysis.confidenceScore}%)`
+            : badgeConfig.label;
     return (
         <div className="flex flex-col h-full">
             {/* Header Area */}
@@ -43,15 +59,11 @@ const ThreadDisplay = () => {
                     <div>
                         <div className="flex items-center gap-2">
                             <span className="text-xl font-semibold">{thread?.emails[0]?.from.name}</span>
-                            <span className="ml-2 px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-semibold">
-                                POTENTIAL (85%)
+                            <span className={`ml-2 px-2 py-1  rounded ${badgeConfig.bg} ${badgeConfig.text} text-md font-semibold`}>
+                                {firstAnalysis?.overallCategory && firstAnalysis?.confidenceScore
+                                    ? `${badgeConfig.label} (${firstAnalysis.confidenceScore}%)`
+                                    : badgeConfig.label}
                             </span>
-                            <Button
-                                className="ml-2 bg-gradient-to-r from-pink-200 to-purple-300 cursor-pointer"
-                                size="sm" variant="outline"
-                                onClick={handleAnalyzeClick}>
-                                <Brain /> AI Analyze
-                            </Button>
                         </div>
                         <div className="text-lg font-bold mt-2">{thread?.emails[0]?.subject}</div>
                         <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">

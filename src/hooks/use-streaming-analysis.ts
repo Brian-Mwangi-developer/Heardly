@@ -1,3 +1,4 @@
+"use client";
 import {
     analysisStateAtom,
     setAnalyzingAtom,
@@ -24,7 +25,7 @@ export const useStreamingAnalysis = () => {
             console.log(`Starting analysis for thread ID: ${threadId}`);
 
             updateProgress({ progress: 5, step: 'Initializing analysis...' });
-            await new Promise(resolve => setTimeout(resolve, 200));
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
             updateProgress({ progress: 10, step: 'Fetching thread data...' });
 
@@ -72,6 +73,7 @@ export const useStreamingAnalysis = () => {
         progress: analysisState.progress,
         currentStep: analysisState.currentStep,
         results: analysisState.results,
+        setResults,
         error: analysisState.error,
     };
 };

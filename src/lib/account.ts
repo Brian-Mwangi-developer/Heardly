@@ -15,7 +15,7 @@ export class Account {
                 Authorization: `Bearer ${this.token}`
             },
             params: {
-                daysWithin: 4,
+                daysWithin: 1,
                 bodyType: 'html'
             }
         })
@@ -169,5 +169,5 @@ export class Account {
             }
             throw error
         }
-      }
+    }
 }

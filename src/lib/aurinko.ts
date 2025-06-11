@@ -26,6 +26,7 @@ export const exchangeCodeForAccessToken = async (code: string) => {
             }
         })
         console.log('Received Token:', response.data);
+        //Make sure the Above accoundId is updated on localStorage
         return response.data as {
             accountId: number;
             accessToken: string;
