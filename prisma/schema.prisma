@@ -129,6 +129,7 @@ model Thread {
   conversation Conversation[]
   emails Email[]
   emailAnalysis EmailAnalysis?
+  campaignThreads CampaignThread[]
 
   @@index([accountId])
   @@index([done])
@@ -177,6 +178,42 @@ model Email {
   @@index([emailLabel])
   @@index([sentAt])
 }
+enum CampaignStatusEnum {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+model Campaign {
+  id              String              @id @default(cuid())
+  name            String
+  description     String?
+  targetAudience  String
+  goals           String
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  status          CampaignStatusEnum
+  emailCount      Int                 @default(0)
+  potentialCount  Int                 @default(0)
+  queryCount      Int                 @default(0)
+  deadCount       Int                 @default(0)
+  
+  campaignThreads CampaignThread[]
+}
+
+model CampaignThread {
+  id           String   @id @default(cuid())
+  campaignId   String
+  threadId     String
+  category     String   // 'potential', 'query', 'dead', 'unknown'
+  assignedAt   DateTime @default(now())
+  
+  // Relations
+  campaign     Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  thread       Thread   @relation(fields: [threadId], references: [id])
+  
+  @@unique([campaignId, threadId]) // Prevent duplicate assignments
+}
+
 
 
 model EmailAnalysis {

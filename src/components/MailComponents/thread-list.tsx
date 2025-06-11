@@ -6,8 +6,10 @@ import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { format, formatDistanceToNow } from "date-fns";
 import DOMPurify from "dompurify";
-import { Brain, Loader2, MessageSquare, TrendingUp, XCircle } from "lucide-react";
+import { Brain, Loader2, MessageSquare, Target, TrendingUp, XCircle } from "lucide-react";
 import React, { type ComponentProps } from 'react';
+import { toast } from "sonner";
+import { CampaignAssignmentModal } from "../CampaignComponents/campaign-assigment-modal";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 
@@ -61,7 +63,7 @@ const getThreadStyling = (analysis: any, isSelected: boolean) => {
     }
 };
 
-// Custom component for thread item with its own analysis query
+
 const ThreadItem = ({
     thread,
     isSelected,
@@ -75,7 +77,7 @@ const ThreadItem = ({
     isInMultipleSelection: boolean;
     onMultipleSelectionChange: (checked: boolean) => void;
 }) => {
-    // Individual query for this thread's analysis
+
     const { data: analysis } = api.analysis.getThreadAnalysis.useQuery(
         { threadId: thread.id },
         { enabled: !!thread.id }
@@ -144,7 +146,40 @@ const ThreadItem = ({
 export const ThreadList = () => {
     const { threads, threadId, setThreadId, isFetching, multipleThreads, setMultipleThreads } = useThreads()
     const [loading, setLoading] = React.useState(false)
+    const [dialogOpen, setDialogOpen] = React.useState(false)
     const { startAnalysis } = useStreamingAnalysis()
+
+    const assignToCampaignMutation = api.campaign.assignThreadsToCampaign.useMutation({
+        onSuccess: (data) => {
+            toast.success(`${data.count} threads assigned to campaign successfully`)
+            setMultipleThreads([])
+            setDialogOpen(false)
+        },
+        onError: (error) => {
+            toast.error(`Failed to assign threads: ${error.message || 'Unknown error'}`)
+        }
+    })
+    const handleCampaignAssignment = (threadIds: string[], campaignId: string) => {
+        assignToCampaignMutation.mutate({
+            threadIds,
+            campaignId
+        })
+    }
+
+    const getSelectedEmailsForModal = () => {
+        if (!threads) return []
+
+        return threads
+            .filter(thread => multipleThreads.includes(thread.id))
+            .map(thread => ({
+                id: thread.id,
+                sender: thread.emails.at(-1)?.from.name || 'Unknown Sender',
+                subject: thread.subject || 'No Subject',
+                // Add any other fields the modal needs
+                threadId: thread.id,
+                emailId: thread.emails.at(-1)?.id || thread.id
+            }))
+    }
 
     const groupedThreads = threads?.reduce((acc, thread) => {
         const date = format(thread.emails[0]?.sentAt ?? new Date(), 'yyyy-MM-dd')
@@ -176,7 +211,7 @@ export const ThreadList = () => {
     }
 
     return (
-        <div className="max w-full overflow-y-scroll max-h-[calc(100vh-120px)]">
+        <div className="max w-full overflow-y-scroll max-h-[calc(100vh-120px)] mb-10">
             <div className="flex flex-row items-end justify-end gap-2 mx-2">
                 <Button
                     variant={"outline"}
@@ -186,6 +221,15 @@ export const ThreadList = () => {
                     <Brain />
                     Analyze mails
                     {multipleThreads.length > 0 && `(${multipleThreads.length})`}
+                </Button>
+                <Button
+                    variant={"outline"}
+                    className=""
+                    disabled={multipleThreads.length === 0 || isFetching || loading}
+                    onClick={() => setDialogOpen(true)}
+                >
+                    <Target />
+                    Assign Campaign
                 </Button>
                 <Button
                     variant={"outline"}
@@ -201,25 +245,39 @@ export const ThreadList = () => {
                         <div className="text-xs font-medium text-muted-foreground mt-5 first:mt-0">
                             {date}
                         </div>
-                        {threads.map(thread => (
-                            <ThreadItem
-                                key={thread.id}
-                                thread={thread}
-                                isSelected={thread.id === threadId}
-                                onSelect={() => setThreadId(thread.id)}
-                                isInMultipleSelection={multipleThreads.includes(thread.id)}
-                                onMultipleSelectionChange={(checked) => {
-                                    if (checked) {
-                                        setMultipleThreads([...multipleThreads, thread.id])
-                                    } else {
-                                        setMultipleThreads(multipleThreads.filter(id => id !== thread.id))
-                                    }
-                                }}
-                            />
-                        ))}
+                        <div className="mb-30">
+                            {threads.map(thread => (
+                                <div className="mb-3" key={thread.id}>
+                                    <ThreadItem
+                                        key={thread.id}
+                                        thread={thread}
+                                        isSelected={thread.id === threadId}
+                                        onSelect={() => setThreadId(thread.id)}
+                                        isInMultipleSelection={multipleThreads.includes(thread.id)}
+                                        onMultipleSelectionChange={(checked) => {
+                                            if (checked) {
+                                                setMultipleThreads([...multipleThreads, thread.id])
+                                            } else {
+                                                setMultipleThreads(multipleThreads.filter(id => id !== thread.id))
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </React.Fragment>
                 })}
             </div>
+            <CampaignAssignmentModal
+                emails={getSelectedEmailsForModal()}
+                isOpen={dialogOpen}
+                onClose={() => setDialogOpen(false)}
+                onAssign={(emailIds, campaignId) => {
+                    const threadIds = multipleThreads;
+                    handleCampaignAssignment(threadIds, campaignId);
+                }}
+                isAssigning={assignToCampaignMutation.isPending}
+            />
         </div>
     )
 }
