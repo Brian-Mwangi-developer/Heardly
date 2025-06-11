@@ -24,7 +24,7 @@ export const GET = async (req: NextRequest) => {
     if (!token) return NextResponse.json({ message: "Failed to Exchange Code for Access Token" }, { status: 400 })
 
     const accountDetails = await getAccountDetails(token.accessToken);
-    console.log('Account Details in Aurinko Callback:', accountDetails);
+    // console.log('Account Details in Aurinko Callback:', accountDetails);
     if (!accountDetails) return NextResponse.json({ message: "Failed to Get Account Details" }, { status: 400 })
     await db.account.upsert({
         where: {

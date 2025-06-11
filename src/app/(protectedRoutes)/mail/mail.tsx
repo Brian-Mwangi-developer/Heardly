@@ -19,14 +19,14 @@ type Props = {
     defaultCollapsed: boolean
 }
 
-const Mail = ({ defaultLayout = [15, 38, 15], navCollapsedSize }: Props) => {
+const Mail = ({ defaultLayout = [25, 38, 15], navCollapsedSize }: Props) => {
     const [isCollapsed, setIsCollapsed] = useState(false)
-    const { threadId,threads } = UseThreads()
+    const { threadId, threads } = UseThreads()
     return (
         <>
             <TooltipProvider delayDuration={0}>
                 <ResizablePanelGroup direction="horizontal" className="items-stretch h-full min-h-screen">
-                    <ResizablePanel defaultSize={defaultLayout[0]} minSize={10}>
+                    <ResizablePanel defaultSize={defaultLayout[0]} minSize={20}>
                         <Tabs defaultValue='inbox'>
                             <div className="">
                                 <div className="flex flex-col justify-center">
@@ -47,7 +47,7 @@ const Mail = ({ defaultLayout = [15, 38, 15], navCollapsedSize }: Props) => {
                         </Tabs>
                     </ResizablePanel>
                     <ResizableHandle withHandle />
-                    <ResizablePanel defaultSize={60} minSize={25}>
+                    <ResizablePanel defaultSize={40} minSize={25}>
                         <ThreadDisplay />
                     </ResizablePanel>
                     <ResizableHandle withHandle />

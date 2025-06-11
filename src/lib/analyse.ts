@@ -47,6 +47,18 @@ export const defaultRules: RulesConfig = {
     ],
 }
 
+function truncateEmailContent(text: string, maxTokens: number = 2000): string {
+    // Rough estimate: 1 token ≈ 4 characters for English text
+    const maxChars = maxTokens * 4;
+
+    if (text.length <= maxChars) {
+        return text;
+    }
+
+    // Truncate and add indication
+    return text.substring(0, maxChars) + "\n\n[Content truncated due to length...]";
+}
+
 export interface EmailThread {
     subject: string;
     body: string;
@@ -100,6 +112,11 @@ export async function analyzeEmailThread(
         temperature: 0.1,
         openAIApiKey: process.env.OPENAI_API_KEY,
     });
+    const truncatedEmailThread = {
+        ...emailThread,
+        body: truncateEmailContent(emailThread.body, 1500), // Limit body to ~1500 tokens
+        subject: emailThread.subject.length > 200 ? emailThread.subject.substring(0, 200) + "..." : emailThread.subject
+    };
     const prompt =
         `
     You are an expert sales representative analyzer tasked with reviewing email threads to identify lead potential and provide actionable recommendations.
@@ -129,10 +146,10 @@ ${rules.dead.map((rule, index) => `${index + 1}. ${rule}`).join('\n')}
 
 ## EMAIL THREAD TO ANALYZE ##
 
-**Subject:** ${emailThread.subject}
-**Body:** ${emailThread.body}
-${emailThread.sender ? `**Sender:** ${emailThread.sender}` : ''}
-${emailThread.timestamp ? `**Timestamp:** ${emailThread.timestamp}` : ''}
+**Subject:** ${truncatedEmailThread.subject}
+**Body:** ${truncatedEmailThread.body}
+${truncatedEmailThread.sender ? `**Sender:** ${truncatedEmailThread.sender}` : ''}
+${truncatedEmailThread.timestamp ? `**Timestamp:** ${truncatedEmailThread.timestamp}` : ''}
 
 ## OUTPUT REQUIREMENTS ##
 
@@ -226,28 +243,3 @@ export function formatAnalysisResults(analysis: z.infer<typeof EmailAnalysisSche
 
 
 
-// Example usage function
-// export async function analyzeEmailExample() {
-//     const sampleEmail: EmailThread = {
-//         subject: "Interested in your enterprise solution",
-//         body: "Hi, I'm the CTO at TechCorp and we're looking for a new customer management system. We have a budget of $50k and need to implement something within the next 3 months. Could you send me pricing information and schedule a demo? We're currently using Salesforce but it's not meeting our needs.",
-//         sender: "john.doe@techcorp.com"
-//     };
-
-
-//     try {
-//         const analysis = await analyzeEmailThread(sampleEmail, defaultRules);
-//         const formattedResults = formatAnalysisResults(analysis);
-//         console.log(formattedResults);
-//         return analysis;
-//     } catch (error) {
-//         console.error("Analysis failed:", error);
-//     }
-// }
-
-// // Export types for external use
-// export type EmailAnalysisResult = z.infer<typeof EmailAnalysisSchema>;
-
-// if (require.main === module) {
-//     analyzeEmailExample();
-// }
