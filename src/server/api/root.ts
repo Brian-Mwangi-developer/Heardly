@@ -1,13 +1,14 @@
 import { postRouter } from "@/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { accountRouter } from "./routers/account";
+import { analysisRouter } from "./routers/analysis";
 import { attendanceRouter } from "./routers/attendance";
-import { stripeRouter } from "./routers/stripe";
-import { webinarRouter } from "./routers/webinar";
+import { campaignRouter } from "./routers/campaign";
 import { streamIoRouter } from "./routers/streamIo";
+import { stripeRouter } from "./routers/stripe";
 import { VapiRouter } from "./routers/vapi";
 import { vconsRouter } from "./routers/vcon";
-import { analysisRouter } from "./routers/analysis";
+import { webinarRouter } from "./routers/webinar";
 
 /**
  * This is the primary router for your server.
@@ -20,10 +21,11 @@ export const appRouter = createTRPCRouter({
   webinar: webinarRouter,
   stripe: stripeRouter,
   attendance: attendanceRouter,
-  streamIo:streamIoRouter,
-  vapi:VapiRouter,
-  vcon:vconsRouter,
-  analysis: analysisRouter
+  streamIo: streamIoRouter,
+  vapi: VapiRouter,
+  vcon: vconsRouter,
+  analysis: analysisRouter,
+  campaign: campaignRouter
 });
 
 // export type definition of API
