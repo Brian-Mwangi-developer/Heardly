@@ -1,3 +1,4 @@
+import { CampaignAnalytics } from "@/components/CampaignComponents/campaign-analytics";
 
 export default function AnalyticsPage() {
     return (
@@ -6,7 +7,7 @@ export default function AnalyticsPage() {
                 <h1 className="text-2xl font-bold text-gray-900">Campaign Analytics</h1>
                 <p className="text-gray-600 mt-2">Track campaign performance and analyze email outcomes</p>
             </div>
-            {/* <CampaignAnalytics /> */}
+            <CampaignAnalytics />
         </div>
     )
 }

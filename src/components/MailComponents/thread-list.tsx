@@ -245,7 +245,7 @@ export const ThreadList = () => {
                         <div className="text-xs font-medium text-muted-foreground mt-5 first:mt-0">
                             {date}
                         </div>
-                        <div className="mb-30">
+                        <div className="mb-5">
                             {threads.map(thread => (
                                 <div className="mb-3" key={thread.id}>
                                     <ThreadItem
